@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 
-var deviceInfoSchema = new Schema({
+var DeviceDataSchema = new Schema({
     "deviceID": String,
     "deviceData": String,
     "dataDir": String,
@@ -11,4 +11,4 @@ var deviceInfoSchema = new Schema({
 });
 
 
-module.exports = mongoose.model('deviceInfo', deviceInfoSchema, 'DevicesInfo');
+module.exports = mongoose.model('devicedatas', DeviceDataSchema);

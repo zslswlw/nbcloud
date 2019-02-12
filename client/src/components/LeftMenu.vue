@@ -26,8 +26,7 @@
                                 <span slot="title">{{citem.name}}</span>
                             </el-menu-item> 
                         </router-link>
-                    </el-submenu>
-                    
+                    </el-submenu>                   
                 </template>
              </el-menu>
          </el-col>
@@ -40,17 +39,36 @@ export default {
     return {
       items: [
         {
-          icon: "fa-money",
-          name: "资金管理",
-          path: "fund",
-          children: [{ path: "foundlist", name: "资金流水" }]
+          icon: "fa-bar-chart",
+          name: "后台管理",
+          path: "mainControl",
+          children: [{ path: "mainControl", name: "后台主控" }]
         },
         {
-          icon: "fa-asterisk",
-          name: "信息管理",
-          path: "info",
-          children: [{ path: "infoshow", name: "个人信息" }]
-        }
+          icon: "fa-microchip",
+          name: "设备管理",
+          path: "deviceList",
+          children: [
+            { path: "infoshow", name: "设备列表" },
+            { path: "infoshow", name: "创建设备" },
+            { path: "infoshow", name: "历史信息" }
+            ]
+        },
+        {
+          icon: "fa-edit",
+          name: "应用编辑",
+          path: "edit",
+          children: [
+            { path: "infoshow", name: "我的项目" },
+            { path: "infoshow", name: "共享项目" }
+          ],
+        },
+        {
+          icon: "fa-user-circle-o",
+          name: "用户信息",
+          path: "userinfo",
+          children: [{ path: "infoshow", name: "修改信息" }],
+        },
       ]
     };
   }

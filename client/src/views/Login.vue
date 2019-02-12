@@ -2,7 +2,7 @@
     <div class="login">
         <section class="form_container">
             <div class="manage_tip">
-                <span class="title">米修在线后台管理系统</span>
+                <span class="title">NBIot云平台</span>
             </div>
             <el-form :model="loginUser" :rules="rules" ref="loginForm" class="loginForm" label-width="60px">
                 <el-form-item label="邮箱" prop="email">

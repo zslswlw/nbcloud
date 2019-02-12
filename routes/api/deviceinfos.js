@@ -68,8 +68,7 @@ router.post(
 router.delete(
     '/delete/:id',
     passport.authenticate('jwt', { session: false }),
-    (res, req) => {
-        console.log(req.params.id);
+    (req, res) => {
         DeviceInfo.findOneAndRemove({ _id: req.params.id })
         .then(deviceInfo => {
             deviceInfo.save().then(deviceInfo => res.json(deviceInfo));

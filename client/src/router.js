@@ -7,6 +7,7 @@ import Login from './views/Login'
 import Home from './views/Home'
 import InfoShow from './views/InfoShow'
 import FoundList from './views/FoundList'
+import MainControl from './views/MainControl'
 
 Vue.use(Router)
 
@@ -26,7 +27,7 @@ const router = new Router({
         { path: '', component: Home },
         { path: '/home', name: 'home', component: Home },
         { path: '/infoshow', name: 'infoshow', component: InfoShow },
-        { path: '/foundlist', name: 'foundlist', component: FoundList }
+        { path: '/maincontrol', name: 'maincontrol', component: MainControl }
       ]
     },
 
