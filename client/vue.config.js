@@ -36,22 +36,22 @@ module.exports = {
     },
     pwa: { // 单页插件相关配置 https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-pwa
     },
-    // devServer: {
-    //     open: true,
-    //     host: 'localhost',
-    //     port: 8081,
-    //     https: false,
-    //     hotOnly: false,
-    //     proxy: { // 配置跨域
-    //         '/api': {
-    //             target: 'http://localhost:3000/api/',
-    //             ws: true,
-    //             changOrigin: true,
-    //             pathRewrite: {
-    //                 '^/api': ''
-    //             }
-    //         }
-    //     },
-    //     before: app => { }
-    // }
+    devServer: {
+        open: true,
+        host: 'localhost',
+        port: 8081,
+        https: false,
+        hotOnly: false,
+        proxy: { // 配置跨域
+            '/api': {
+                target: 'http://localhost:3000/api/',
+                ws: true,
+                changOrigin: true,
+                pathRewrite: {
+                    '^/api': ''
+                }
+            }
+        },
+        before: app => { }
+    }
 }

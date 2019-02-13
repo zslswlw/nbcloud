@@ -13,13 +13,12 @@ router.get(
     '/',
     passport.authenticate('jwt', {session : false}),
     (req, res) => {
-      infolist = [];
-      get_device_list((staticData) => {
-        infolist.push(staticData);
-        console.log(infolist);
-        if (infolist.length == 3) {
-            res.end(JSON.stringify(infolist));
-            infolist = [];
+      infolist = {};
+      get_device_list((key, value) => {
+        infolist[key] = value;
+        //console.log(infolist);
+        if (Object.keys(infolist).length == 3) {
+            res.json(infolist);
         }
       })
     } 
@@ -28,20 +27,20 @@ router.get(
 function get_device_list(callback) {
   //取设备个数
   DeviceInfo.find().count().then(count => {
-    callback({"deNum" : count});
+    callback("deNum", count);
   })
   .catch(err => console.log('Error:' + err));
 
   //取上行数据条数
   DeviceData.find({"dataDir":'上行数据'}).count().then(count => {
-    callback({"receNum" : count});
+    callback("receNum", count);
   })
   .catch(err => console.log('Error:' + err));
   
 
   //取下行数据条数
   DeviceData.find({"dataDir":'下行数据'}).count().then(count => {
-    callback({"tranNum" : count});
+    callback("tranNum", count);
   })
   .catch(err => console.log('Error:' + err)); 
 }

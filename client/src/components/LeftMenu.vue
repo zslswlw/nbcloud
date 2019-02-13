@@ -49,8 +49,8 @@ export default {
           name: "设备管理",
           path: "deviceList",
           children: [
-            { path: "infoshow", name: "设备列表" },
-            { path: "infoshow", name: "创建设备" },
+            { path: "devicelist", name: "设备列表" },
+            { path: "createdevice", name: "创建设备" },
             { path: "infoshow", name: "历史信息" }
             ]
         },

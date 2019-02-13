@@ -8,6 +8,9 @@ import Home from './views/Home'
 import InfoShow from './views/InfoShow'
 import FoundList from './views/FoundList'
 import MainControl from './views/MainControl'
+import DeviceList from './views/DeviceList'
+import CreateDevice from './views/CreateDevice'
+import DebugDevice from './views/DebugDevice'
 
 Vue.use(Router)
 
@@ -27,7 +30,10 @@ const router = new Router({
         { path: '', component: Home },
         { path: '/home', name: 'home', component: Home },
         { path: '/infoshow', name: 'infoshow', component: InfoShow },
-        { path: '/maincontrol', name: 'maincontrol', component: MainControl }
+        { path: '/maincontrol', name: 'maincontrol', component: MainControl },
+        { path: '/devicelist', name: 'devicelist', component: DeviceList },
+        { path: '/createdevice', name: 'createdevice', component: CreateDevice },
+        { path: '/debugdevice', name: 'debugdevice', component: DebugDevice },     
       ]
     },
 

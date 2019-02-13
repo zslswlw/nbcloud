@@ -177,13 +177,15 @@
         },
         methods: {
             getInfoList(){
-                this.$axios("http://localhost:3000/api/staticdelinfos").then(res => {
-                    console.log(res.data);
-                    this.statisticsDeviceInfo.deviceNum = response.data[2].deNum;
-                    this.statisticsDeviceInfo.dataDirTran = response.data[1].tranNum;
-                    this.statisticsDeviceInfo.dataDirRece = response.data[0].receNum;
-                    //this.statisticsDeviceInfo.dataDirRece = response.data[0].receNum;
+                this.$axios("/api/staticdeinfos").then(res => {
+                    //console.log(res.data);
+                    this.statisticsDeviceInfo.deviceNum = res.data.deNum;
+                    this.statisticsDeviceInfo.dataDirTran = res.data.tranNum;
+                    this.statisticsDeviceInfo.dataDirRece = res.data.receNum;
+                    //this.statisticsDeviceInfo.dataDirRece = res.data.receNum;
+                    //console.log(this.statisticsDeviceInfo);
                 })
+                
             }
         },
         mounted() {
