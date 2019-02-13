@@ -9,6 +9,7 @@ const users = require('./routes/api/users');
 const profiles = require('./routes/api/profiles');
 const deviceInfos =require('./routes/api/deviceinfos')
 const staticDeInfos =require('./routes/api/staticDeInfos')
+const msgprofiles = require('./routes/api/msgprofiles');
 
 // DB config
 const db = require('./config/keys').mongoURI;
@@ -56,6 +57,7 @@ app.use('/api/users', users);
 app.use('/api/profiles', profiles);
 app.use('/api/deviceinfos', deviceInfos);
 app.use('/api/staticdeinfos', staticDeInfos);
+app.use('/api/msgprofiles', msgprofiles);
 
 
 const port = process.env.PORT || 3000;

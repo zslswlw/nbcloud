@@ -21,7 +21,8 @@
               <!--<el-button @click="$router.push({path: '/debugDevice', params: {name: 'row', dataObj: scope.row}})" type="text" size="small">数据传输</el-button>-->
               <!--<router-view></router-view>-->
 
-              <el-button @click="debugDevice(scope.row)" type="text" size="small">数据传输</el-button>
+              <!-- <el-button @click="debugDevice(scope.row)" type="text" size="small">数据传输</el-button> -->
+              <el-button @click="$router.push({name: 'debugdevice', params: {deInfo: scope.row}})" type="text" size="small">数据传输</el-button>
               <el-button @click="editDevice(scope.row)" type="text" size="small">编辑</el-button>
               <!--<el-button @click.native.prevent="deleteDevice(scope.$index, tableData4)" type="text" size="small">删除</el-button>-->
               <!--<template slot-scope="scope">-->
