@@ -30,8 +30,22 @@
                       <!--</el-input>-->
                       <!--<scroll :data="messages" class="seamless-warp">-->
                       <div id="chat">
-                        <div id="messages-window" >
-                          <span v-bind:class="'message ' + (message.txrx == 'T' ? 'ours' : 'theirs')" v-for="message in messages">{{message.content}}</span>
+                        <div id="messages-window" class="content_wrap" 
+                            v-for = "(item, index) in messageList"
+                            :key = "index"
+                            >
+                            <!-- 设备的内容 -->
+                            <div class="left_msg" v-if = "item.source == 'other'">
+                                <img :src="targetUser.avatar" alt="">
+                                <span>{{item.msg}}</span>
+                            </div>
+                            <!-- 我的内容 -->
+                            <div class="right_msg" v-if="item.source == 'self'">  
+                                <span>{{item.msg}}</span>
+                                <img :src="user.avatar" alt="">
+                            </div>
+                          <!-- <span v-bind:class="'message ' + (message.txrx == 'T' ? 'ours' : 'theirs')" v-for="message in messages">{{message.content}}</span> -->
+
                         </div>
                       </div>
 
@@ -176,41 +190,47 @@
       },
       methods: {
         saveMsg() {// 保存消息
+         //console.log(deInfo);
           let message = {
             target: {
-              avatar: this.targetUser.avatar,
-              name: this.targetUser.name,
-              _id: this.targetUser._id
+              //avatar: this.targetUser.avatar,
+              name: this.deInfo.deviceName,
+              _id: this.deInfo._id
             },
             count: 0,
             message: this.messageList,
             user_id: this.user.id
           };
+          console.log(message);
           this.$axios
-            .post("/api/msgprofile/add", message)
+            .post("/api/msgprofiles/add", message)
             .then(res => (this.msgValue = ""));
         },
       
       getMessage(){
-        this.$axios(`/api/msgprofile/msg/${this.user.id}`)
+        this.$axios(`/api/msgprofiles/msg/${this.user.id}`)
+        //this.$axios('/api/msgprofiles/msg/5c6198c81070512d40b0857f')
           .then(res => {
             let result = res.data.filter(data => {
-              return data.target._id == this.targetUser._id;
-            })
+              return data.target._id == this.deInfo._id;
+            });
+            if(result.length > 0){
+                this.messageList = result[0].message;
+            }
           })
       },
 
       sendMessage(){
         const msgObj = {
-          target: this.targetUser._id,
+          target: this.deInfo._id,
           current: this.user.id,
-          msg: this.msgValue,
+          msg: this.txData,
         };
         Wsocket.send(msgObj);
 
         //本地客户端显示
         this.messageList.push({
-          msg: this.msgValue,
+          msg: this.txData,
           source: "self"
         });
 
@@ -306,11 +326,11 @@
       // beforeDestroy () {
       //   Bus.$off('getDeviceInfo', this.deInfo);
       // },
-      mounted() {
+    mounted() {
         // this.TxRxUdpData.ReceUdpData = JSON.parse(localStorage.receUdpData);
         // this.TxRxUdpData.TransUdpData = JSON.parse(localStorage.transUdpData);
-        WSocket.init(
-          { deInfo: this.deInfo },
+        Wsocket.init(
+          { user: this.user },
           message => {
             // 收到消息后,将消息存储到数据中
             this.messageList.push({
@@ -324,7 +344,12 @@
             console.log(error);
           }
         );
-  },
+    },
+    computed: {
+        user(){
+            return this.$store.getters.user;
+        }
+    }
 }
 </script>
 
@@ -454,6 +479,39 @@
 .ours {
   background:#0076FF;
   align-self:flex-end;
+}
+
+.left_msg {
+  justify-content: flex-start;
+}
+.right_msg {
+  justify-content: flex-end;
+}
+.left_msg,
+.right_msg {
+  width: 100%;
+  display: flex;
+  margin: 5px 0;
+}
+.content_wrap img {
+  width: 3rem;
+  height: 3rem;
+}
+.content_wrap span {
+  display: inline-block;
+  max-width: 65%;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  margin: 0 5px;
+  padding: 8px;
+  box-sizing: border-box;
+  word-break: break-all;
+}
+.left_msg span {
+  background-color: #fff;
+}
+.right_msg span {
+  background-color: #0fce0d;
 }
 
 </style>

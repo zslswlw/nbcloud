@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 
 // 定义websocket服务器
-const wsServer = new WebSocket.Server({ port: 3000 });
+const wsServer = new WebSocket.Server({ port: 3200 });
 
 // 定义连接到的websocket集合
 let socketSet = [];
@@ -9,6 +9,7 @@ let socketSet = [];
 // 连接
 wsServer.on('connection', (websocket, req, res) => {
   const userid = req.url.split('/');
+  //console.log(userid);
   let isExist = false; // 标记当前用户是否在线
   socketSet.forEach(ws => {
     if (ws.currentId == userid[2]) isExist = true;
@@ -21,7 +22,7 @@ wsServer.on('connection', (websocket, req, res) => {
   }
 
   websocket.on('message', function incoming(message) {
-    // console.log('received: %s', message);
+     //console.log('received: %s', message);
     // 收到消息之后推送给目标对象
     const msgObj = JSON.parse(message);
     socketSet.forEach(ws => {

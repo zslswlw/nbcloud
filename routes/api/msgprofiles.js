@@ -9,15 +9,16 @@ const MsgProfile = require('../../models/MsgProfile');
 router.post(
     '/add',
     passport.authenticate('jwt', {session: false}),
-    (res, req) =>{
+    (req, res) =>{
         const profileFields = {};
-        MsgProfile.findone({ target: req.body.target, user_d: req.boy.user_id })
+        //console.log(req.body)
+        MsgProfile.findOne({ target: req.body.target, user_id: req.body.user_id })
             .then(profile => {
                 if(!profile) {
                     if(req.body.target) profileFields.target = req.body.target;
-                    if(req.boy.user_id) profileFielda.user_id = req.body.user_id;
+                    if(req.body.user_id) profileFields.user_id = req.body.user_id;
                     profileFields.count = req.body.count;
-                    if(req.body.message) profileFields.message =req.body.user._id;
+                    if(req.body.message) profileFields.message =req.body.message;
                     new MsgProfile(profileFields).save().then(profile => res.json(profile));
                 } else {
                     profile.message = req.body.message;
@@ -34,15 +35,17 @@ router.get(
     '/msg/:user_id', 
     passport.authenticate('jwt', {session: false}), 
     (req, res) => {
+        //console.log(req);
         MsgProfile.find()
-            .then(profile => {
-                if(!profile) {
+            .then(profiles => {
+                if(!profiles) {
                     errors.noprofile = "没有任何消息";
                     res.status(404).json(errors);
                 }
                 let result = profiles.filter(profile => {
-                    return profile.user_id = req.params.user_id;
+                    return profile.user_id == req.params.user_id;
                 })
+                console.log(result);
                 res.json(result);
             })
             .catch(err => res.status(404).json(err));
