@@ -7,7 +7,11 @@ var DeviceInfoSchema = new Schema({
     devicePwd: String,
     deviceName: String,
     deviceAddr: String,
-    deviceDetail: String
+    deviceDetail: String,
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'users'
+    }
 });
 
 

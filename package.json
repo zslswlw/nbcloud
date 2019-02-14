@@ -7,9 +7,10 @@
     "client-install": "npm install --prefix client",
     "client": "npm start --prefix client",
     "socket": "nodemon webSocket.js",
+    "udp": "nodemon udpServer.js",
     "start": "node server.js",
     "server": "nodemon server.js",
-    "dev": "concurrently \"npm run server\" \"npm run socket\" \"npm run client\""
+    "dev": "concurrently \"npm run server\" \"npm run socket\" \"npm run client\" \"npm run udp\""
   },
   "author": "米斯特吴",
   "license": "ISC",

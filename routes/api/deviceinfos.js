@@ -13,6 +13,7 @@ router.post(
     passport.authenticate('jwt', {session: false}),
     (req, res) => {
         const deviceInfoFields = {};
+        deviceInfoFields.user = req.user._id;
         if(req.body.deviceID) deviceInfoFields.deviceID = req.body.deviceID;
         if(req.body.devicePwd) deviceInfoFields.devicePwd = req.body.devicePwd;
         if(req.body.deviceDetail) deviceInfoFields.deviceDetail = req.body.deviceDetail;
@@ -65,6 +66,24 @@ router.post(
     }
 );
 
+router.get(
+    '/user',
+    passport.authenticate('jwt', { session: false }),
+    (req, res) => {
+        DeviceInfo.find({ user : req.user.id })
+            //.populate('user', ['name', 'avatar'])
+            .populate('user')
+            .then(profile => {
+                if(!profile){
+                    rrors.noprofile = '该用户的信息不存在~!';
+                    return res.status(404).json(errors);
+                }
+                res.json(profile);
+            })
+            .catch(err => res.status(404).json(err));
+    }
+);
+
 router.delete(
     '/delete/:id',
     passport.authenticate('jwt', { session: false }),
@@ -75,6 +94,6 @@ router.delete(
         })
         .catch(err => res.status(404).json('删除失败'));
     }
-)
+);
 
 module.exports = router;

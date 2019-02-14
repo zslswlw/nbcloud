@@ -11,6 +11,7 @@ router.post(
     passport.authenticate('jwt', {session: false}),
     (req, res) =>{
         const profileFields = {};
+        //profileFields.user = req.user._id;
         //console.log(req.body)
         MsgProfile.findOne({ target: req.body.target, user_id: req.body.user_id })
             .then(profile => {
