@@ -6,8 +6,9 @@ module.exports = {
     ws: null, // Websocket实例
     init(config, onMessage, onError) {
       if (!this.ws) {
+        //console.log(config.user._id);
         // 实例化socket对象
-        this.ws = new WebSocket(`ws://localhost:3200/${config.user.id}`);
+        this.ws = new WebSocket(`ws://localhost:3200/${config.user._id}`);
       }
   
       // 客户端接收消息

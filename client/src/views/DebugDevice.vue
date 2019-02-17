@@ -36,7 +36,7 @@
                             >
                             <!-- 设备的内容 -->
                             <div class="left_msg" v-if = "item.source == 'other'">
-                                <img :src="targetUser.avatar" alt="">
+                                <img :src="user.avatar" alt="">
                                 <span>{{item.msg}}</span>
                             </div>
                             <!-- 我的内容 -->
@@ -190,7 +190,7 @@
       },
       methods: {
         saveMsg() {// 保存消息
-         //console.log(deInfo);
+         //console.log(this.deInfo);
           let message = {
             target: {
               //avatar: this.targetUser.avatar,
@@ -223,7 +223,7 @@
       sendMessage(){
         const msgObj = {
           target: this.deInfo._id,
-          current: this.user.id,
+          current: this.user._id,
           msg: this.txData,
         };
         Wsocket.send(msgObj);
@@ -329,6 +329,7 @@
     mounted() {
         // this.TxRxUdpData.ReceUdpData = JSON.parse(localStorage.receUdpData);
         // this.TxRxUdpData.TransUdpData = JSON.parse(localStorage.transUdpData);
+        console.log(this.user);
         Wsocket.init(
           { user: this.user },
           message => {
@@ -338,6 +339,7 @@
               source: "other"
             });
             // 保存消息
+            console.log(this.messageList);
             this.saveMsg();
           },
           error => {

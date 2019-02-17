@@ -2,6 +2,8 @@ const dgram = require('dgram');
 const serverSocket = dgram.createSocket('udp4');
 const Wsocket = require('./config/socket');
 const DeviceInfo = require('./models/DeviceInfo');
+const User = require('./models/User');
+
 
 
 const mongoose = require('mongoose');
@@ -20,17 +22,17 @@ mongoose
 
 
 serverSocket.on('message', (msg, rinfo) => {
-    console.log('recv %s(%d bytes) from client %s:%d\n', msg, msg.length, rinfo.address, rinfo.port);
+    console.log('recv %s(%d bytes) from client %s:%d\n', msg.toString(), msg.length, rinfo.address, rinfo.port);
   
     //echo to client
     //serverSocket.send(msg, 0, msg.length, rinfo.port, rinfo.address);
     
     
-    let ID = msg.toString().split("&")[0].split("=")[1];
-    let PWD = msg.toString().split("&")[1].split("=")[1];
+    let deviceID = msg.toString().split("&")[0].split("=")[1];
+    let devicePwd = msg.toString().split("&")[1].split("=")[1];
 
-
-    DeviceInfo.find({ deviceID: ID}, { devicePwd: PWD})
+    //console.log({deviceID});
+    DeviceInfo.find({ deviceID })
         .populate('user')
             .then(profile => {
                 console.log(profile);
@@ -38,9 +40,10 @@ serverSocket.on('message', (msg, rinfo) => {
                     errors.noprofile = '该设备用户的信息不存在~!';
                     return //res.status(404).json(errors);
                 }
-                
+                //console.log(typeof(profile));
+                //console.log(profile[0].user);
                 Wsocket.init(
-                    { user: profile.user },
+                    { user: profile[0] },
                     // message => {
 
                     // },
@@ -49,15 +52,15 @@ serverSocket.on('message', (msg, rinfo) => {
                     }
                 )
                 let msgObj = {
-                    target: profile._id,
-                    courrent: profile.user._id,
-                    msg: msg,
+                  courrent: profile[0]._id,
+                  target: profile[0].user._id,
+                  msg: msg.toString(),
                 };
                 Wsocket.send(msgObj);
 
         })
         .catch(err => console.log(err));
-        console.log({ deviceID: ID}, { devicePwd: PWD})
+        //console.log({ deviceID: ID}, { devicePwd: PWD})
     
     });
   

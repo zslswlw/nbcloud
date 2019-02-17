@@ -9,10 +9,11 @@ let socketSet = [];
 // 连接
 wsServer.on('connection', (websocket, req, res) => {
   const userid = req.url.split('/');
+  //console.log(userid[1]);
   //console.log(userid);
   let isExist = false; // 标记当前用户是否在线
   socketSet.forEach(ws => {
-    if (ws.currentId == userid[2]) isExist = true;
+    if (ws.currentId == userid[1]) isExist = true;
   });
   if (!isExist) {
     socketSet.push({
@@ -22,11 +23,12 @@ wsServer.on('connection', (websocket, req, res) => {
   }
 
   websocket.on('message', function incoming(message) {
-     //console.log('received: %s', message);
+     console.log('received: %s', message);
     // 收到消息之后推送给目标对象
     const msgObj = JSON.parse(message);
     socketSet.forEach(ws => {
-      // console.log(ws);
+      console.log(ws.currentId);
+      console.log(msgObj.target);
       if (ws.websocket.readyState == 1) {
         if (ws.currentId == msgObj.target) {
           // 判断当前用户是否为目标对象

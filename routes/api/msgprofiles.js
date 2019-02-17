@@ -46,7 +46,7 @@ router.get(
                 let result = profiles.filter(profile => {
                     return profile.user_id == req.params.user_id;
                 })
-                console.log(result);
+                //console.log(result);
                 res.json(result);
             })
             .catch(err => res.status(404).json(err));
