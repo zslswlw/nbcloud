@@ -28,7 +28,8 @@
                                 <!--{{message.content}}-->
                                 <!--&lt;!&ndash;v-model="TxRxUdpData.downTip + TxRxUdpData.ReceUdpData + TxRxUdpData.upTip + TxRxUdpData.TransUdpData">&ndash;&gt;-->
                       <!--</el-input>-->
-                      <!--<scroll :data="messages" class="seamless-warp">-->
+                      <!-- <scroll :data="messageList" class="seamless-warp"> -->
+                      <!-- <scroll class="seamless-warp"> -->
                       <div id="chat">
                         <div id="messages-window" class="content_wrap" 
                             v-for = "(item, index) in messageList"
@@ -36,7 +37,7 @@
                             >
                             <!-- 设备的内容 -->
                             <div class="left_msg" v-if = "item.source == 'other'">
-                                <img :src="user.avatar" alt="">
+                                <img :src="deInfo.avatar" alt="">
                                 <span>{{item.msg}}</span>
                             </div>
                             <!-- 我的内容 -->
@@ -49,7 +50,7 @@
                         </div>
                       </div>
 
-                      <!--</scroll>-->
+                      <!-- </scroll> -->
 
                         <!--<ul class="item">-->
                           <!--<li v-for="item in listData">-->
@@ -151,22 +152,15 @@
 //   import axios from 'axios'
 //   import VueSocketio from 'vue-socket.io';
 //   import socketio from 'socket.io-client';
-//   import scroll from 'vue-seamless-scroll'
-    import Wsocket from "../socket.js"
+  import scroll from 'vue-seamless-scroll'
+  import Wsocket from "../socket.js"
 //   // Vue.use(VueSocketio, socketio('http://127.0.0.1:3200'));
 //   Vue.use(VueSocketio, socketio('http://193.112.57.70:3200'))
     export default {
       name: "debug-device",
       data() {
         return {
-          deInfo: {
-            deviceID: '',
-            devicePwd: '',
-            deviceName: '',
-            deviceAddr: '',
-            deviceDetail: '',
-            deviceStatus: ''
-          },
+          deInfo: {},
           status: '',
           TxRxUdpData: {
             downTip: "云平台<--终端(上行数据):  ",
@@ -180,7 +174,7 @@
         }
       },
       components: {
-        //scroll
+        scroll
       },
       beforeRouteEnter (to, from, next) {
         next(vm => {
@@ -188,12 +182,21 @@
           vm.getMessage();
         })
       },
+      computed: {
+        // targetUser(){
+        //   return this.$sotre.getters.targetUser;
+        // },
+        user() {
+          return this.$store.getters.user;
+        } 
+      },
       methods: {
         saveMsg() {// 保存消息
          //console.log(this.deInfo);
           let message = {
             target: {
               //avatar: this.targetUser.avatar,
+              avatar: this.deInfo.avatar, 
               name: this.deInfo.deviceName,
               _id: this.deInfo._id
             },
@@ -208,14 +211,17 @@
         },
       
       getMessage(){
+        console.log(this.deInfo._id);
         this.$axios(`/api/msgprofiles/msg/${this.user.id}`)
         //this.$axios('/api/msgprofiles/msg/5c6198c81070512d40b0857f')
           .then(res => {
+            console.log(res.data);
             let result = res.data.filter(data => {
               return data.target._id == this.deInfo._id;
             });
+            console.log(result);
             if(result.length > 0){
-                this.messageList = result[0].message;
+              this.messageList = result[0].message;
             }
           })
       },
@@ -269,6 +275,7 @@
       //   }
       },
       created() {
+        //this.deInfo = this.targetUser;
         // this.TxRxUdpData.ReceUdpData = "云平台<--终端:  testupData\r\n";
         // this.TxRxUdpData.TransUdpData = "云平台-->终端:  testdownData \r\n";
         // var self = this;
@@ -329,7 +336,7 @@
     mounted() {
         // this.TxRxUdpData.ReceUdpData = JSON.parse(localStorage.receUdpData);
         // this.TxRxUdpData.TransUdpData = JSON.parse(localStorage.transUdpData);
-        console.log(this.user);
+        //console.log(this.user);
         Wsocket.init(
           { user: this.user },
           message => {
@@ -347,11 +354,6 @@
           }
         );
     },
-    computed: {
-        user(){
-            return this.$store.getters.user;
-        }
-    }
 }
 </script>
 

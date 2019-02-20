@@ -72,7 +72,7 @@
           return index;
         },
         debugDevice(row) {
-          //console.log(row);
+          console.log(row);
           this.$store.dispatch("setTargetUser", row)
           this.deInfoRow = row;
           this.$router.push('/debugDevice');

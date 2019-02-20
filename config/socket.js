@@ -9,6 +9,7 @@ module.exports = {
         //console.log(config.user._id);
         // 实例化socket对象
         this.ws = new WebSocket(`ws://localhost:3200/${config.user._id}`);
+        console.log(`${config.user._id} start connect sws`);
       }
   
       // 客户端接收消息
@@ -20,6 +21,7 @@ module.exports = {
       // 出错
       this.ws.onerror = error => {
         onError && onError(error);
+        this.ws = null;
       };
   
       this.ws.onclose = () => {

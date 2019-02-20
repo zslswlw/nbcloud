@@ -8,6 +8,7 @@ let socketSet = [];
 
 // 连接
 wsServer.on('connection', (websocket, req, res) => {
+  console.log(`[SERVER] connection()`);
   const userid = req.url.split('/');
   //console.log(userid[1]);
   //console.log(userid);
@@ -27,8 +28,8 @@ wsServer.on('connection', (websocket, req, res) => {
     // 收到消息之后推送给目标对象
     const msgObj = JSON.parse(message);
     socketSet.forEach(ws => {
-      console.log(ws.currentId);
-      console.log(msgObj.target);
+      // console.log(ws.currentId);
+      // console.log(msgObj.target);
       if (ws.websocket.readyState == 1) {
         if (ws.currentId == msgObj.target) {
           // 判断当前用户是否为目标对象
