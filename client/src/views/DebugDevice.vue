@@ -170,7 +170,8 @@
           },
           txData: '',
           messages: [],
-          messageList: []
+          messageList: [],
+          messageList2: []
         }
       },
       components: {
@@ -191,11 +192,10 @@
         } 
       },
       methods: {
-        saveMsg() {// 保存消息
-         //console.log(this.deInfo);
-          let message = {
+        saveMsg() {
+          // 保存来自设备的消息
+          let message1 = {
             target: {
-              //avatar: this.targetUser.avatar,
               avatar: this.deInfo.avatar, 
               name: this.deInfo.deviceName,
               _id: this.deInfo._id
@@ -204,24 +204,43 @@
             message: this.messageList,
             user_id: this.user.id
           };
-          console.log(message);
           this.$axios
-            .post("/api/msgprofiles/add", message)
+            .post("/api/msgprofiles/add", message1)
+            .then(res => (this.msgValue = ""));
+          // 保存发送给设备的消息
+          let message2 = {
+            target: {
+              avatar: this.user.avatar, 
+              name: this.user.deviceName,
+              _id: this.user._id
+            },
+            count: 0,
+            message: this.messageList2,
+            user_id: this.deInfo._id
+          };
+          this.$axios
+            .post("/api/msgprofiles/add", message2)
             .then(res => (this.msgValue = ""));
         },
       
       getMessage(){
-        console.log(this.deInfo._id);
         this.$axios(`/api/msgprofiles/msg/${this.user.id}`)
-        //this.$axios('/api/msgprofiles/msg/5c6198c81070512d40b0857f')
           .then(res => {
-            console.log(res.data);
             let result = res.data.filter(data => {
               return data.target._id == this.deInfo._id;
             });
-            console.log(result);
             if(result.length > 0){
               this.messageList = result[0].message;
+            }
+          })
+
+        this.$axios(`/api/msgprofiles/msg/${this.deInfo.id}`)
+          .then(res => {
+            let result = res.data.filter(data => {
+              return data.target._id == this.deInfo._id;
+            });
+            if(result.length > 0){
+              this.messageList2 = result[0].message;
             }
           })
       },
@@ -240,7 +259,14 @@
           source: "self"
         });
 
+        this.messageList2.push({
+          msg: this.msgValue,
+          source: "other"
+        });
+
         this.saveMsg();
+        // 清空input
+        this.msgValue = "";
       }
 
       //   transDataToDevice(val){
@@ -341,13 +367,20 @@
           { user: this.user },
           message => {
             // 收到消息后,将消息存储到数据中
-            this.messageList.push({
-              msg: message.msg,
-              source: "other"
-            });
-            // 保存消息
-            console.log(this.messageList);
-            this.saveMsg();
+            console.log(message.from);
+            console.log(this.deInfo._id);
+            if(message.from == this.deInfo._id){
+              this.messageList.push({
+                msg: message.msg,
+                source: "other"
+              });
+              this.messageList2.push({
+                msg: message.msg,
+                source: "self"
+              });
+              // 保存消息
+              this.saveMsg();
+            }
           },
           error => {
             console.log(error);

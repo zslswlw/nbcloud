@@ -42,7 +42,16 @@ wsServer.on('connection', (websocket, req, res) => {
         }
       }
     });
-  });
+  })
+
+  websocket.on('close', (code, reason) => {
+    console.log("链接关闭websocket55 "+reason +":" +code);
+    socketSet = socketSet.filter(ws => {
+      return ws.websocket !== websocket
+    })
+    console.log(socketSet.currentId);
+  })
+
 
   // websocket.send(
   //   JSON.stringify({

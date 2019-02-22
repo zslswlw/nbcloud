@@ -28,9 +28,16 @@ module.exports = {
         this.ws = null;
       };
     },
-    send(msgObj) {
-      // 发送消息的时候触发
-      this.ws.send(JSON.stringify(msgObj));
+    send(msgObj) {             
+        setTimeout(() => {
+            if(this.ws.readyState==1){
+              console.log("无需尝试发送!");
+              this.ws.send(JSON.stringify(msgObj));
+            }else{
+              console.log("尝试发送");
+              Send(JSON.stringify(msgObj));
+            }
+        },300);
     }
-  };
+};
   
