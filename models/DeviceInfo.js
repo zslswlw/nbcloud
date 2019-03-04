@@ -15,4 +15,4 @@ var DeviceInfoSchema = new Schema({
 });
 
 
-module.exports = DeviceInfo = mongoose.model('devicesinfos', DeviceInfoSchema);
+module.exports = DeviceInfo = mongoose.model('deviceinfos', DeviceInfoSchema);

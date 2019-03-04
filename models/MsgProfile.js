@@ -46,5 +46,5 @@ const MsgProfileSchema = new Schema({
 
 });
 
-module.exports = MsgProfile =mongoose.model('msgprofile', MsgProfileSchema);
+module.exports = MsgProfile =mongoose.model('msgprofiles', MsgProfileSchema);
 

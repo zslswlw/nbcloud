@@ -1,26 +1,33 @@
 const dgram = require('dgram');
 const serverSocket = dgram.createSocket('udp4');
 const Wsocket = require('./config/socket');
-const DeviceInfo = require('./models/DeviceInfo');
-const User = require('./models/User');
-const msgprofiles = require('./models/MsgProfile');
 const axios = require('axios');
 
+const mongoose = require('mongoose');
 
-
-//const mongoose = require('mongoose');
+const DeviceInfo = require('./models/DeviceInfo');
+const User = require('./models/User');
 
 const port = process.env.PORT || 18777;
 
-// // DB config
-// const db = require('./config/keys').mongoURI;
-// mongoose
-//   .connect(
-//     db,
-//     { useNewUrlParser: true }
-//   )
-//   .then(() => console.log('MongoDB Connected'))
-//   .catch(err => console.log(err));
+function getMessage(user, token){   
+    axios(`http://localhost:3000/api/msgprofiles/msg/${user._id}`,{
+      headers: {
+          'Authorization': token,
+          'Content-Type': 'application/x-www-form-urlencoded'
+      }
+  })
+    .then(res => {
+      console.log(res.data);
+      let result = res.data.filter(data => {
+        return data.target._id == deInfo._id;
+      });
+      if(result.length > 0){
+        _messageList = result[0].message;
+      }
+    })
+    .catch(err => console.log(err));
+}
 
 function sendMessage(device, user, ws, msg, msglist, msglist2) {
     // console.log(this.msgValue);
@@ -84,60 +91,71 @@ function sendMessage(device, user, ws, msg, msglist, msglist2) {
 
 serverSocket.on('message', (msg, rinfo) => {
     console.log('recv %s(%d bytes) from client %s:%d\n', msg.toString(), msg.length, rinfo.address, rinfo.port);
-    axios.get('http://localhost:3000/api/profiles/test').then(res => console.log(res.data));
-    //echo to client
-    //serverSocket.send(msg, 0, msg.length, rinfo.port, rinfo.address);
     
+    let deviceID = msg.toString().split("&")[0].split("=")[1];
+    let devicePwd = msg.toString().split("&")[1].split("=")[1];
     
-    // let deviceID = msg.toString().split("&")[0].split("=")[1];
-    // let devicePwd = msg.toString().split("&")[1].split("=")[1];
-    
-    // let deviceProfile = null;
-    // let messageList = [];
-    // let messageList2 = [];
+    let deInfo = {};
+    let user = {}
+    let messageList = [];
+    let messageList2 = [];
+    var token = {};
+    axios.post('http://localhost:3000/api/deviceinfos/connect',
+      {
+        deviceID, 
+        devicePwd
+      }
+      )
+      .then(res => {
+        token = res.data.token;
+        console.log(token + "  1")
+      });
+      console.log(token + " 2");
 
 
-    // DeviceInfo.find({ deviceID }, { devicePwd })
-    //     .populate('user')
-    //         .then(profile => {
-    //             console.log(profile);
-    //             if (!profile) {
-    //                 errors.noprofile = '该设备用户的信息不存在~!';
-    //                 return //res.status(404).json(errors);
-    //             }
+    axios('http://localhost:3000/api/deviceinfos/devuser',
+      { 
+        params: {
+          deviceID,
+          devicePwd
+        }
+      })
+      .then(res => {
+        deInfo = res.data[0];
+        user = res.data[0].user;
+        console.log(user._id);
+        getMessage(user, deInfo, messageList, messageList2, token);
 
-    //             deviceProfile = profile[0];
-    //             //console.log(typeof(profile));
-    //             //console.log(profile[0].user);
-    //             Wsocket.init(
-    //                 { user: profile[0] },
-    //                 // message => {
+        console.log(messageList);
+                
+                // Wsocket.init(
+                //     { user: profile[0] },
+                //     // message => {
 
-    //                 // },
-    //                 error => {
-    //                     console.log(error);
-    //                 }
-    //             )
-    //             let msgObj = {
-    //               current: profile[0]._id,
-    //               target: profile[0].user._id,
-    //               msg: msg.toString(),
-    //             };
-    //             let message = {
-    //               target: {
-    //                 avatar: profile[0].user.avatar,
-    //                 mame: profile[0].user.name,
-    //                 _id: profile[0].user._id,
-    //               },
-    //               count: 0,
-    //               message:  ,
-    //               user_id: profile[0]._id,
-    //             }
-    //             Wsocket.send(msgObj);
+                //     // },
+                //     error => {
+                //         console.log(error);
+                //     }
+                // )
+                // let msgObj = {
+                //   current: profile[0]._id,
+                //   target: profile[0].user._id,
+                //   msg: msg.toString(),
+                // };
+                // let message = {
+                //   target: {
+                //     avatar: profile[0].user.avatar,
+                //     mame: profile[0].user.name,
+                //     _id: profile[0].user._id,
+                //   },
+                //   count: 0,
+                //   message:  ,
+                //   user_id: profile[0]._id,
+                // }
+                // Wsocket.send(msgObj);
 
-        //})
-        //.catch(err => console.log(err));
-        //console.log({ deviceID: ID}, { devicePwd: PWD})
+        })
+        .catch(err => console.log(err));
     
     });
   
