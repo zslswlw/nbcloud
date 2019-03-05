@@ -131,7 +131,7 @@ router.post('/connect', (req, res) => {
     const devicePwd = req.body.devicePwd;
     // 查询数据库
     DeviceInfo.findOne({ deviceID }).then(dev => {
-      if (!dev) {
+        if (!dev) {
         return res.status(404).json('设备不存在!');
       }
   

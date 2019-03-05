@@ -31,7 +31,7 @@ router.post(
 
 // $route  GET api/profile/msg/:user_id
 // @desc   获取用户的所有消息记录
-// @access private
+// @access private 
 router.get(
     '/msg/:user_id', 
     passport.authenticate('jwt', {session: false}), 

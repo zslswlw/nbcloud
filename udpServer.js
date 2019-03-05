@@ -99,7 +99,7 @@ serverSocket.on('message', (msg, rinfo) => {
     let user = {}
     let messageList = [];
     let messageList2 = [];
-    var token = {};
+    var token = "";
     axios.post('http://localhost:3000/api/deviceinfos/connect',
       {
         deviceID, 

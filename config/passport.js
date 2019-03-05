@@ -2,7 +2,7 @@ const JwtStrategy = require('passport-jwt').Strategy,
 ExtractJwt = require('passport-jwt').ExtractJwt;
 const mongoose = require("mongoose");
 const User = mongoose.model("users");
-const DeviceInfo = mongoose.model("deviceinfos");
+const DeviceInfo = mongoose.model("devicesinfos");
 const keys = require("../config/keys");
 
 const opts = {}
@@ -11,19 +11,20 @@ opts.secretOrKey = keys.secretOrKey;
 
 module.exports = passport => {
   passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
-    console.log(jwt_payload);
-    // if(!jwt_payload.deviceID){
-    //   User.findById(jwt_payload.id)
-    //     .then(user => {
-    //       if(user){
-    //         return done(null,user);
-    //       }
+    if(!jwt_payload.deviceID){
+      console.log(1)
+      User.findById(jwt_payload._id)
+        .then(user => {
+          if(user){
+            return done(null,user);
+          }
 
-    //       return done(null,false);
-    //     })
-    //     .catch(err => console.log(err));
-    // } else {
-      DeviceInfo.findById(jwt_payload.id)
+          return done(null,false);
+        })
+        .catch(err => console.log(err));
+    } 
+    else {
+      DeviceInfo.findById(jwt_payload._id)
       .then(dev => {
         if(dev){
           return done(null,dev);
@@ -32,7 +33,7 @@ module.exports = passport => {
         return done(null,false);
       })
       .catch(err => console.log(err));
-   // }
+   }
     
   }));
 }
