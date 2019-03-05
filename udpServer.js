@@ -10,23 +10,45 @@ const User = require('./models/User');
 
 const port = process.env.PORT || 18777;
 
+function getToken(deviceID, devicePwd){
+  console.log(14);
+  return axios.post('http://localhost:3000/api/deviceinfos/connect', { deviceID, devicePwd })
+      // .then(res => {
+      //   token = res.data.token;
+      //   return token;
+      // })
+}
+
+function getDeInfo(deviceID, devicePwd){
+  console.log(23);
+  return axios.post('http://localhost:3000/api/deviceinfos/devuser', { deviceID, devicePwd }
+      )
+      // .then(res => {
+      //   deInfo = res.data[0];
+      //   console.log(deInfo);
+      //   return deInfo;
+      // })
+}
+
 function getMessage(user, token){   
-    axios(`http://localhost:3000/api/msgprofiles/msg/${user._id}`,{
-      headers: {
-          'Authorization': token,
-          'Content-Type': 'application/x-www-form-urlencoded'
-      }
-  })
+  const options = {
+    method: 'get',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' ,
+                'Authorization': token 
+              },
+    url: `http://localhost:3000/api/msgprofiles/msg/${user._id}`
+  };
+    axios(options)
     .then(res => {
       console.log(res.data);
-      let result = res.data.filter(data => {
-        return data.target._id == deInfo._id;
+      // let result = res.data.filter(data => {
+      //   return data.target._id == deInfo._id;
       });
-      if(result.length > 0){
-        _messageList = result[0].message;
-      }
-    })
-    .catch(err => console.log(err));
+      // if(result.length > 0){
+      //   _messageList = result[0].message;
+      // }
+    //})
+    //.catch(err => console.log(err));
 }
 
 function sendMessage(device, user, ws, msg, msglist, msglist2) {
@@ -100,33 +122,16 @@ serverSocket.on('message', (msg, rinfo) => {
     let messageList = [];
     let messageList2 = [];
     var token = {};
-    axios.post('http://localhost:3000/api/deviceinfos/connect',
-      {
-        deviceID, 
-        devicePwd
-      }
-      )
-      .then(res => {
-        token = res.data.token;
-        console.log(token + "  1")
-      });
-      console.log(token + " 2");
-
-
-    axios('http://localhost:3000/api/deviceinfos/devuser',
-      { 
-        params: {
-          deviceID,
-          devicePwd
-        }
-      })
-      .then(res => {
-        deInfo = res.data[0];
-        user = res.data[0].user;
-        console.log(user._id);
-        getMessage(user, deInfo, messageList, messageList2, token);
-
-        console.log(messageList);
+    //console.log(getToken(deviceID, devicePwd));
+    //console.log(getDeInfo(deviceID, devicePwd));
+    
+    axios.all([getToken(deviceID, devicePwd), getDeInfo(deviceID, devicePwd)]).then(axios.spread(function (token, deInfo) {
+      // 两个请求现在都执行完成
+      //axios.defaults.headers.common['Authorization'] = token;
+      console.log(deInfo);
+      console.log(token);
+      //getMessage(token, deInfo.user_id);
+    }))
                 
                 // Wsocket.init(
                 //     { user: profile[0] },
@@ -154,7 +159,7 @@ serverSocket.on('message', (msg, rinfo) => {
                 // }
                 // Wsocket.send(msgObj);
 
-        })
+        // })
         .catch(err => console.log(err));
     
     });

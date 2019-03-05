@@ -2,7 +2,7 @@ const JwtStrategy = require('passport-jwt').Strategy,
 ExtractJwt = require('passport-jwt').ExtractJwt;
 const mongoose = require("mongoose");
 const User = mongoose.model("users");
-const DeviceInfo = mongoose.model("deviceinfos");
+const DeviceInfo = mongoose.model("devicesinfos");
 const keys = require("../config/keys");
 
 const opts = {}
@@ -23,15 +23,15 @@ module.exports = passport => {
     //     })
     //     .catch(err => console.log(err));
     // } else {
-      DeviceInfo.findById(jwt_payload.id)
-      .then(dev => {
-        if(dev){
-          return done(null,dev);
-        }
+      // DeviceInfo.findById(jwt_payload.id)
+      // .then(dev => {
+      //   if(dev){
+      //     return done(null,dev);
+      //   }
 
-        return done(null,false);
-      })
-      .catch(err => console.log(err));
+         return done(null,false);
+      // })
+      // .catch(err => console.log("meiyou"));
    // }
     
   }));
