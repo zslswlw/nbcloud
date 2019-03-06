@@ -87,7 +87,7 @@ router.get(
             .populate('user')
             .then(profile => {
                 if(!profile){
-                    rrors.noprofile = '该用户的信息不存在~!';
+                    errors.noprofile = '该用户的信息不存在~!';
                     return res.status(404).json(errors);
                 }
                 res.json(profile);
@@ -105,7 +105,7 @@ router.get(
             //.populate('user')
             .then(profile => { 
                 if(!profile){
-                    rrors.noprofile = '该用户的信息不存在~!';
+                    errors.noprofile = '该用户的信息不存在~!';
                     return res.status(404).json(errors);
                 }
                 res.json(profile);

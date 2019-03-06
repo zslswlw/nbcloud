@@ -36,7 +36,6 @@ router.get(
     '/msg/:user_id', 
     passport.authenticate('jwt', {session: false}), 
     (req, res) => {
-        //console.log(req);
         MsgProfile.find()
             .then(profiles => {
                 if(!profiles) {
@@ -46,7 +45,6 @@ router.get(
                 let result = profiles.filter(profile => {
                     return profile.user_id == req.params.user_id;
                 })
-                console.log(result);
                 res.json(result);
             })
             .catch(err => res.status(404).json(err));

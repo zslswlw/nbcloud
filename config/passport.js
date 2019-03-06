@@ -12,7 +12,7 @@ opts.secretOrKey = keys.secretOrKey;
 module.exports = passport => {
   passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
     if(!jwt_payload.deviceID){
-      console.log(1)
+      console.log(1);
       User.findById(jwt_payload._id)
         .then(user => {
           if(user){
@@ -24,6 +24,7 @@ module.exports = passport => {
         .catch(err => console.log(err));
     } 
     else {
+      console.log(jwt_payload._id);
       DeviceInfo.findById(jwt_payload._id)
       .then(dev => {
         if(dev){
@@ -34,6 +35,7 @@ module.exports = passport => {
       })
       .catch(err => console.log(err));
    }
+   
     
   }));
 }
