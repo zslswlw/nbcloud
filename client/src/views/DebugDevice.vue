@@ -194,6 +194,7 @@
       methods: {
         saveMsg() {
           // 保存来自设备的消息
+          console.log(this.deInfo);
           let message1 = {
             target: {
               avatar: this.deInfo.avatar, 
@@ -211,7 +212,7 @@
           let message2 = {
             target: {
               avatar: this.user.avatar, 
-              name: this.user.deviceName,
+              name: this.user.name,
               _id: this.user._id
             },
             count: 0,

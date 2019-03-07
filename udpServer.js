@@ -11,6 +11,37 @@ const User = require('./models/User');
 
 const port = process.env.PORT || 18777;
 
+// 请求拦截  设置统一header
+axios.interceptors.request.use(config => {
+    if (global.token)
+        config.headers.Authorization = global.token;
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
+// 响应拦截  401 token过期处理
+axios.interceptors.response.use(response => {
+  return response;
+}, error => {
+  // 错误提醒
+  //console.log(error.response.data);
+  console.log(error);
+
+  const { status } = error.response
+  if (status == 401) {
+      console.log('token值无效，请重新登录');
+      // 清除token
+      global.token = "";
+      global.isLogin = false;
+
+      // 页面跳转
+      //router.push('/login')
+  }
+
+  return Promise.reject(error)
+});
+
 function getToken(deviceID, devicePwd){
   return axios.post('http://localhost:3000/api/deviceinfos/connect', { deviceID, devicePwd })
       .then(res => {
@@ -110,51 +141,95 @@ function sendMessage(device, user, ws, msg, msglist, msglist2) {
       .then(res => (this.msgValue = ""));
   }
 
+  function isEmpty(value) {
+    return (
+      value === undefined ||
+      value === null ||
+      (typeof value === "object" && Object.keys(value).length === 0) ||
+      (typeof value === "string" && value.trim().length === 0)
+    );
+  }
+
 
 
 serverSocket.on('message', (msg, rinfo) => {
     console.log('recv %s(%d bytes) from client %s:%d\n', msg.toString(), msg.length, rinfo.address, rinfo.port);
+    if(!global.isLogin){
+      let deviceID = msg.toString().split("&")[0].split("=")[1];
+      let devicePwd = msg.toString().split("&")[1].split("=")[1];
     
-    let deviceID = msg.toString().split("&")[0].split("=")[1];
-    let devicePwd = msg.toString().split("&")[1].split("=")[1];
-   
-    axios.all([getToken(deviceID, devicePwd), getDeInfo(deviceID, devicePwd)])
-      .then(axios.spread(function (token, deInfo) {
-        // 两个请求现在都执行完成
-        console.log(token);
+      getToken(deviceID, devicePwd).then( token => {
         const device = jwt_decode(token);
-        console.log(device);
-
-       //getMessage(token, deInfo.user);
+        global.isLogin = !isEmpty(device);
+        global.device = device;
         Wsocket.init(
           { user: device },
           message => {
-
+  
           },
           error => {
               console.log(error);
           }
-      )
+        );   
+      })
+      return;
+    } else {
       let msgObj = {
         current: device._id,
         target: device.user,
         msg: msg.toString(),
       };
-      // let message = {
-      //   target: {
-      //     avatar: profile[0].user.avatar,
-      //     mame: profile[0].user.name,
-      //     _id: profile[0].user._id,
-      //   },
-      //   count: 0,
-      //   message:  ,
-      //   user_id: profile[0]._id,
-      // }
+    // let message = {
+    //   target: {
+    //     avatar: profile[0].user.avatar,
+    //     mame: profile[0].user.name,
+    //     _id: profile[0].user._id,
+    //   },
+    //   count: 0,
+    //   message:  ,
+    //   user_id: profile[0]._id,
+    // }
       Wsocket.send(msgObj);
+    }
+   
+    // axios.all([getToken(deviceID, devicePwd), getDeInfo(deviceID, devicePwd)])
+    //   .then(axios.spread(function (token, deInfo) {
+    //     // 两个请求现在都执行完成
+    //     const device = jwt_decode(token);
+    //     console.log(device);
+    //     global.isLogin = !isEmpty(device);
+    //     global.device = device
 
-      }))       
+    //    //getMessage(token, deInfo.user);
+    //     Wsocket.init(
+    //       { user: device },
+    //       message => {
+
+    //       },
+    //       error => {
+    //           console.log(error);
+    //       }
+    //   )
+    //   let msgObj = {
+    //     current: device._id,
+    //     target: device.user,
+    //     msg: msg.toString(),
+    //   };
+    //   // let message = {
+    //   //   target: {
+    //   //     avatar: profile[0].user.avatar,
+    //   //     mame: profile[0].user.name,
+    //   //     _id: profile[0].user._id,
+    //   //   },
+    //   //   count: 0,
+    //   //   message:  ,
+    //   //   user_id: profile[0]._id,
+    //   // }
+    //   Wsocket.send(msgObj);
+
+    //   }))       
       
-        .catch(err => console.log(err));
+       // .catch(err => console.log(err));
     
     });
   

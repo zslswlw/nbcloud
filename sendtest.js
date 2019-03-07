@@ -2,7 +2,7 @@ var dgram = require('dgram');
 
 var clientSocket = dgram.createSocket('udp4');
 
-var msg = "ID=86940503105546&pwd=123456"
+var msg = toString(Date.now);
 
 //clientSocket.send(msg, 0, msg.length, 18777, "localhost");
 

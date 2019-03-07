@@ -26,7 +26,7 @@
               <el-button @click="editDevice(scope.row)" type="text" size="small">编辑</el-button>
               <!--<el-button @click.native.prevent="deleteDevice(scope.$index, tableData4)" type="text" size="small">删除</el-button>-->
               <!--<template slot-scope="scope">-->
-                <el-button @click.native.prevent="deleteDevice(scope.$index, tableData)" type="text" size="small">删除</el-button>
+                <el-button @click="deleteDevice(scope.row, scope.$index)" type="text" size="small">删除</el-button>
               <!--</template>-->
             </template>
           </el-table-column>
@@ -80,15 +80,12 @@
         editDevice(row) {
             this.$router.push("/createDevice");
         },
-        deleteDevice(index, rows) {
-          // console.log(rows.toString());
-          // var whatIndex = null;
-          // angular.forEach($scope.rows, function(cb, index) {
-          //   if (cb.ID === ID) {
-          //     whatIndex = index;
-          //   }
-          // });
-          rows.splice(index, 1);
+        deleteDevice(row, index) {
+          // 删除
+          this.$axios.delete(`/api/deviceinfos/delete/${row._id}`).then(res => {
+            this.getDeviceList();
+          });
+          //rows.splice(index, 1);
 
         }
       },
