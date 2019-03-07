@@ -2,6 +2,7 @@ const dgram = require('dgram');
 const serverSocket = dgram.createSocket('udp4');
 const Wsocket = require('./config/socket');
 const axios = require('axios');
+const jwt_decode = require('jwt-decode');
 
 const mongoose = require('mongoose');
 
@@ -13,7 +14,7 @@ const port = process.env.PORT || 18777;
 function getToken(deviceID, devicePwd){
   return axios.post('http://localhost:3000/api/deviceinfos/connect', { deviceID, devicePwd })
       .then(res => {
-        token = res.data.token;
+        const { token } = res.data;
         return token;
       })
 }
@@ -26,7 +27,7 @@ function getDeInfo(deviceID, devicePwd){
       })
 }
 
-function getMessage(token, user){  
+function getMessage(token, user, msg){  
   console.log(token); 
   const options = {
     method: 'get',
@@ -38,8 +39,16 @@ function getMessage(token, user){
     axios(options)
     .then(res => {
       console.log(res.data[0]);
-      return res.data[0];
+      // let result = res.data.filter(data => {
+      //   return data.target._id == this.
       })
+      // return res.data[0];
+      // const msgObj = {    
+      //   target: user._id,
+      //   current: device.id,
+      //   msg: msg
+      // };
+      //})
     .catch(err => console.log(err));
 }
 
@@ -108,48 +117,43 @@ serverSocket.on('message', (msg, rinfo) => {
     
     let deviceID = msg.toString().split("&")[0].split("=")[1];
     let devicePwd = msg.toString().split("&")[1].split("=")[1];
-    
-    let deInfo = {};
-    let user = {}
-    let messageList = [];
-    let messageList2 = [];
-    var token = {};
-    //console.log(getToken(deviceID, devicePwd));
-    //console.log(getDeInfo(deviceID, devicePwd));
-    
-    axios.all([getToken(deviceID, devicePwd), getDeInfo(deviceID, devicePwd)]).then(axios.spread(function (token, deInfo) {
-      // 两个请求现在都执行完成
-      //axios.defaults.headers.common['Authorization'] = token;
-      getMessage(token, deInfo.user);
-    }))
-                
-                // Wsocket.init(
-                //     { user: profile[0] },
-                //     // message => {
+   
+    axios.all([getToken(deviceID, devicePwd), getDeInfo(deviceID, devicePwd)])
+      .then(axios.spread(function (token, deInfo) {
+        // 两个请求现在都执行完成
+        console.log(token);
+        const device = jwt_decode(token);
+        console.log(device);
 
-                //     // },
-                //     error => {
-                //         console.log(error);
-                //     }
-                // )
-                // let msgObj = {
-                //   current: profile[0]._id,
-                //   target: profile[0].user._id,
-                //   msg: msg.toString(),
-                // };
-                // let message = {
-                //   target: {
-                //     avatar: profile[0].user.avatar,
-                //     mame: profile[0].user.name,
-                //     _id: profile[0].user._id,
-                //   },
-                //   count: 0,
-                //   message:  ,
-                //   user_id: profile[0]._id,
-                // }
-                // Wsocket.send(msgObj);
+       //getMessage(token, deInfo.user);
+        Wsocket.init(
+          { user: device },
+          message => {
 
-        // })
+          },
+          error => {
+              console.log(error);
+          }
+      )
+      let msgObj = {
+        current: device._id,
+        target: device.user,
+        msg: msg.toString(),
+      };
+      // let message = {
+      //   target: {
+      //     avatar: profile[0].user.avatar,
+      //     mame: profile[0].user.name,
+      //     _id: profile[0].user._id,
+      //   },
+      //   count: 0,
+      //   message:  ,
+      //   user_id: profile[0]._id,
+      // }
+      Wsocket.send(msgObj);
+
+      }))       
+      
         .catch(err => console.log(err));
     
     });

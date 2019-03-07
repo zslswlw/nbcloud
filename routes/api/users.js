@@ -67,7 +67,9 @@ router.post('/login', (req, res) => {
     if (!user) {
       return res.status(404).json('用户不存在!');
     }
-
+    console.log(user);
+    console.log(user.id);
+    console.log(user._id);
     // 密码匹配
     bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
