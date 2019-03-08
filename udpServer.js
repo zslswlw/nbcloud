@@ -4,11 +4,6 @@ const Wsocket = require('./config/socket');
 const axios = require('axios');
 const jwt_decode = require('jwt-decode');
 
-const mongoose = require('mongoose');
-
-const DeviceInfo = require('./models/DeviceInfo');
-const User = require('./models/User');
-
 const port = process.env.PORT || 18777;
 
 // 请求拦截  设置统一header
@@ -58,31 +53,20 @@ function getDeInfo(deviceID, devicePwd){
       })
 }
 
-function getMessage(token, user, msg){  
-  console.log(token); 
-  const options = {
-    method: 'get',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' ,
-                'Authorization': token 
-              },
-    url: `http://localhost:3000/api/msgprofiles/msg/${user._id}`
-  };
-    axios(options)
-    .then(res => {
-      console.log(res.data[0]);
-      // let result = res.data.filter(data => {
-      //   return data.target._id == this.
-      })
-      // return res.data[0];
-      // const msgObj = {    
-      //   target: user._id,
-      //   current: device.id,
-      //   msg: msg
-      // };
-      //})
-    .catch(err => console.log(err));
-}
+function getMessage(device, user){   
+    axios.get(`http://localhost:3000/api/msgprofiles/msg/${device._id}`)
+      .then(res => {
+        console.log(res.data[0]);
+        let result = res.data.filter(data => {
+          return data.target._id == user._id;
+        });
 
+        if (result.length > 0) {
+          return result[0].message;
+        }
+    }
+  )
+}
 function sendMessage(device, user, ws, msg, msglist, msglist2) {
     // console.log(this.msgValue);
     // 需要发送的消息对象
@@ -110,35 +94,33 @@ function sendMessage(device, user, ws, msg, msglist, msglist2) {
 
   }
 
-  function saveMsg(device, user, msglist, msglist2) {
+  function saveMsg(user, device, msgList, msgList2) {
     // 保存来自设备的消息
     let message1 = {
       target: {
         avatar: user.avatar, 
-        name: user.deviceName,
+        name: user.Name,
         _id: user._id
       },
       count: 0,
-      message: msglist,
-      user_id: device.id
+      message: msgList,
+      user_id: device._id
     };
-    this.$axios
-      .post("/api/msgprofiles/add", message1)
-      .then(res => (this.msgValue = ""));
+    axios.post("/api/msgprofiles/add", message1)
+      .then(res => (console.log("保存了本地消息1")));
     // 保存发送给设备的消息
     let message2 = {
       target: {
         avatar: device.avatar, 
-        name: device.name,
+        name: device.deviceName,
         _id: device._id
       },
       count: 0,
-      message: msglist2,
+      message: msgList2,
       user_id: user._id
     };
-    this.$axios
-      .post("/api/msgprofiles/add", message2)
-      .then(res => (this.msgValue = ""));
+    axios.post("/api/msgprofiles/add", message2)
+      .then(res => (console.log(保存了本地消息1)));
   }
 
   function isEmpty(value) {
@@ -154,93 +136,61 @@ function sendMessage(device, user, ws, msg, msglist, msglist2) {
 
 serverSocket.on('message', (msg, rinfo) => {
     console.log('recv %s(%d bytes) from client %s:%d\n', msg.toString(), msg.length, rinfo.address, rinfo.port);
-    if(!global.isLogin){
+    const reg = /ID=([0-9]{15})&pwd=.+/;
+    var messageList1 = [];
+    var messageList2 = [];
+    if(reg.test(msg.toString()) && !global.isLogin){
       let deviceID = msg.toString().split("&")[0].split("=")[1];
       let devicePwd = msg.toString().split("&")[1].split("=")[1];
+      axios.all([getToken(deviceID, devicePwd), getDeInfo(deviceID, devicePwd)])
+        .then(axios.spread((token, deInfo)  => {
+          const device = jwt_decode(token);
+          global.token = token;
+          global.isLogin = !isEmpty(device);
+          global.device = device;
+          global.user = deInfo.user;
+          messageList1 = getMessage(deInfo, deInfo.user);
+          messageList2 = getMessage(deInfo.user, deInfo);
+          Wsocket.init(
+            { user: device },
+            message => {
     
-      getToken(deviceID, devicePwd).then( token => {
-        const device = jwt_decode(token);
-        global.isLogin = !isEmpty(device);
-        global.device = device;
-        Wsocket.init(
-          { user: device },
-          message => {
-  
-          },
-          error => {
-              console.log(error);
-          }
-        );   
-      })
-      return;
-    } else {
+            },
+            error => {
+                console.log("连接有问题");
+            }
+          );
+          serverSocket.send("login", 0, msg.length, rinfo.port, rinfo.address);   
+        })
+      )
+      //return;
+    } else if(global.isLogin && !reg.test(msg.toString())){
       let msgObj = {
-        current: device._id,
-        target: device.user,
+        current: global.device._id,
+        target: global.device.user,
         msg: msg.toString(),
       };
-    // let message = {
-    //   target: {
-    //     avatar: profile[0].user.avatar,
-    //     mame: profile[0].user.name,
-    //     _id: profile[0].user._id,
-    //   },
-    //   count: 0,
-    //   message:  ,
-    //   user_id: profile[0]._id,
-    // }
-      Wsocket.send(msgObj);
-    }
-   
-    // axios.all([getToken(deviceID, devicePwd), getDeInfo(deviceID, devicePwd)])
-    //   .then(axios.spread(function (token, deInfo) {
-    //     // 两个请求现在都执行完成
-    //     const device = jwt_decode(token);
-    //     console.log(device);
-    //     global.isLogin = !isEmpty(device);
-    //     global.device = device
-
-    //    //getMessage(token, deInfo.user);
-    //     Wsocket.init(
-    //       { user: device },
-    //       message => {
-
-    //       },
-    //       error => {
-    //           console.log(error);
-    //       }
-    //   )
-    //   let msgObj = {
-    //     current: device._id,
-    //     target: device.user,
-    //     msg: msg.toString(),
-    //   };
-    //   // let message = {
-    //   //   target: {
-    //   //     avatar: profile[0].user.avatar,
-    //   //     mame: profile[0].user.name,
-    //   //     _id: profile[0].user._id,
-    //   //   },
-    //   //   count: 0,
-    //   //   message:  ,
-    //   //   user_id: profile[0]._id,
-    //   // }
-    //   Wsocket.send(msgObj);
-
-    //   }))       
+      let msgList1 = messageList1.push({ msg: msg.toString(), soure: "self"});
+      let msgList2 = messageList2.push({ msg: msg.toString(), soure: "other"});
+      saveMsg(global.device.user, global.device._id, msgList1, msgList2);
       
-       // .catch(err => console.log(err));
-    
-    });
+
+      Wsocket.send(msgObj);
+    } else if(!global.isLogin){
+      console.log("没有注册!");
+    } else {
+      console.log("已注册!");
+    }
+});
   
   //    err - Error object, https://nodejs.org/api/errors.html
-  serverSocket.on('error', function(err){
-    console.log('error, msg - %s, stack - %s\n', err.message, err.stack);
-  });
-  
-  serverSocket.on('listening', function(){
-    console.log(`echo server is listening on port ${port}`);
-  })
+serverSocket.on('error', function(err){
+  console.log('error, msg - %s, stack - %s\n', err.message, err.stack);
+});
+
+serverSocket.on('listening', function(){
+  console.log(`echo server is listening on port ${port}`);
+});
 
 
 serverSocket.bind(port);

@@ -10,8 +10,6 @@ let socketSet = [];
 wsServer.on('connection', (websocket, req, res) => {
   console.log(`[SERVER] connection()`);
   const userid = req.url.split('/');
-  //console.log(userid[1]);
-  //console.log(userid);
   let isExist = false; // 标记当前用户是否在线
   socketSet.forEach(ws => {
     if (ws.currentId == userid[1]) isExist = true;
