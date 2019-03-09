@@ -1,5 +1,5 @@
 <template>
-
+<div>
   <el-row :gutter="2" class="mainRow">
     <el-col :span="20">
       <div class="maincontaint">
@@ -142,6 +142,18 @@
       </el-row>
     </el-col>
   </el-row>
+  <el-row :gutter="2">
+    <el-col :span="24">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span>设备在线情况</span>
+          <!--<el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>-->
+        </div>
+        <div class="bottom" id="deStatistics" style="width: 1200px;height:400px;"></div>
+      </el-card>
+    </el-col>
+  </el-row>
+</div>
 </template>
 
 
@@ -154,6 +166,13 @@
 //   import socketio from 'socket.io-client';
   import scroll from 'vue-seamless-scroll'
   import Wsocket from "../socket.js"
+
+  var echarts = require('echarts/lib/echarts');
+  require("echarts/lib/chart/line");
+  require("echarts/lib/chart/lines");
+  require('echarts/lib/component/tooltip');
+  require('echarts/lib/component/title');
+  require("echarts/lib/chart/pie");
 //   // Vue.use(VueSocketio, socketio('http://127.0.0.1:3200'));
 //   Vue.use(VueSocketio, socketio('http://193.112.57.70:3200'))
     export default {
@@ -171,7 +190,9 @@
           txData: '',
           messages: [],
           messageList: [],
-          messageList2: []
+          messageList2: [],
+          dataX: [],
+          dataY: [],
         }
       },
       components: {
@@ -232,6 +253,101 @@
             });
             if(result.length > 0){
               this.messageList = result[0].message;
+              this.dataY = this.messageList.map(message => message.msg.match(/\d+(\.\d+)?/)[0]);
+              this.dataX = this.messageList.map(message => message.msg.match(/\d{4}[\-](0?[1-9]|1[012])[\-](0?[1-9]|[12][0-9]|3[01])(\s+(0?[0-9]|1[0-9]|2[0-3])\:(0?[0-9]|[1-5][0-9]))?$/)[0]);
+              let deviceStatistics = echarts.init(document.getElementById('deStatistics'));
+          let colors = ['#5793f3', '#d14a61', '#675bba'];
+
+          // 指定图表的配置项和数据
+          let option1 = {
+            color: colors,
+
+            tooltip: {
+              trigger: 'none',
+              axisPointer: {
+                type: 'cross'
+              }
+            },
+            legend: {
+              data:['设备1', '设备2']
+            },
+            grid: {
+              top: 70,
+              bottom: 50
+            },
+            xAxis: [
+              {
+                type: 'category',
+                axisTick: {
+                  alignWithLabel: true
+                },
+                axisLine: {
+                  onZero: false,
+                  lineStyle: {
+                    color: colors[1]
+                  }
+                },
+                axisPointer: {
+                  label: {
+                    formatter(params) {
+                      return '在线  ' + params.value
+                        + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                    }
+                  }
+                },
+                //data: ["2017-10", "2017-11", "2017-12", "2018-1", "2018-2", "2018-3", "2018-4", "2018-5", "2018-6"]
+                data: this.dataX
+              },
+              {
+                type: 'category',
+                axisTick: {
+                  alignWithLabel: true
+                },
+                axisLine: {
+                  onZero: false,
+                  lineStyle: {
+                    color: colors[0]
+                  }
+                },
+                axisPointer: {
+                  label: {
+                    formatter(params) {
+                      return '在线  ' + params.value
+                        + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                    }
+                  }
+                },
+                //data: ["2017-10", "2017-11", "2017-12", "2018-1", "2018-2", "2018-3", "2018-4", "2018-5", "2018-6"]
+                data: this.dataX
+              }
+            ],
+            yAxis: [
+              {
+                type: 'value'
+              }
+            ],
+            series: [
+              {
+                name:'设备1',
+                type:'line',
+                xAxisIndex: 1,
+                smooth: true,
+                //data: ["0.971", "1.218", "1.185", "1.028", "0.891", "0.876", "1.025", "0.861", "1.079"]
+                //data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+                 data: this.dataY,
+              },
+              {
+                name:'设备2',
+                type:'line',
+                smooth: true,
+                //data: [3.9, 5.9, 11.1, 18.7, 48.3, 69.2, 231.6, 46.6, 55.4, 18.4, 10.3, 0.7]
+                
+               // data: dataY
+              }
+            ]
+          };
+          // 使用刚指定的配置项和数据显示图表。
+          deviceStatistics.setOption(option1);
             }
           })
 
@@ -385,8 +501,8 @@
           },
           error => {
             console.log(error);
-          }
-        );
+          })
+          
     },
 }
 </script>
@@ -550,6 +666,10 @@
 }
 .right_msg span {
   background-color: #0fce0d;
+}
+
+.box-card {
+  width: 1300px;
 }
 
 </style>

@@ -2,9 +2,11 @@ var dgram = require('dgram');
 
 var clientSocket = dgram.createSocket('udp4');
 
-var msg = "ID=869405031055488&pwd=123456";
+var sd = require('silly-datetime');
 
-var isLogin = false;
+var msg = "ID=86940503105546&pwd=123456";
+
+var login = false;
 
 var chars = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 
@@ -17,6 +19,15 @@ function generateMixed(n) {
      return res;
 }
 
+function GetRandomNum(Min,Max)
+{   
+var max = Math.abs(Min*1000);   
+var min = Math.abs(Max*1000)  
+return Math.floor(Math.random()*(max-min+1)+min)/1000; 
+//return(Min + Math.round(Rand * Range)); 
+return(Min + Rand);   
+}      
+
 //clientSocket.send(msg, 0, msg.length, 18777, "localhost");
 
 clientSocket.on('message', function(msgR, rinfo){
@@ -24,7 +35,7 @@ clientSocket.on('message', function(msgR, rinfo){
   console.log(msgR.toString());
   if(msgR.toString() === "login"){
     console.log("开始发送信息！");
-   isLogin = true;
+   login = true;
   }
 });
 
@@ -35,8 +46,10 @@ clientSocket.on('error', function(err){
 clientSocket.bind(5000);
 
 function sendMsg(){
-  if(isLogin){
-    msg = generateMixed(30);
+  if(login){
+    let value = GetRandomNum(-0.85, -1.25);
+    let time = sd.format(new Date(), 'YYYY-MM-DD HH:mm');
+    msg = `volt: ${value}&time: ${time}`;
     clientSocket.send(msg, 0, msg.length, 18777, "localhost");
   } else{
     clientSocket.send(msg, 0, msg.length, 18777, "localhost");

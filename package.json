@@ -18,6 +18,7 @@
     "axios": "^0.18.0",
     "bcrypt": "^2.0.1",
     "body-parser": "^1.18.3",
+    "datetime": "^0.0.3",
     "express": "^4.16.3",
     "gravatar": "^1.6.0",
     "jsonwebtoken": "^8.2.1",
@@ -25,6 +26,7 @@
     "mongoose": "^5.1.0",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "silly-datetime": "^0.1.2",
     "validator": "^10.2.0",
     "vue-seamless-scroll": "^1.1.16",
     "ws": "^6.1.3"

@@ -27,8 +27,8 @@ const router = new Router({
       name: 'index',
       component: Index,
       children: [
-        { path: '', component: Home },
-        { path: '/home', name: 'home', component: Home },
+        { path: '', component: MainControl },
+        //{ path: '/home', name: 'home', component: Home },
         { path: '/infoshow', name: 'infoshow', component: InfoShow },
         { path: '/maincontrol', name: 'maincontrol', component: MainControl },
         { path: '/devicelist', name: 'devicelist', component: DeviceList },

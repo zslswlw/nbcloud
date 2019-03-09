@@ -7,12 +7,12 @@
                 text-color="#fff"
                 active-text-color="#409eff" 
                 class="el-menu-vertical-demo">
-                <router-link to="/home">
+                <!-- <router-link to="/home">
                     <el-menu-item index="0">
                         <i class="fa fa-margin fa-server"></i>
                         <span slot="title">首页</span>
                     </el-menu-item>
-                </router-link>
+                </router-link> -->
                 <template  v-for="item in items" >
                     <el-submenu v-if="item.children" :index="item.path" :key="item.path">
                         <template slot="title">

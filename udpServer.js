@@ -6,8 +6,8 @@ const jwt_decode = require('jwt-decode');
 
 const port = process.env.PORT || 18777;
 
-var messageList1 = [];
-var messageList2 = [];
+const messageList1 = [];
+const messageList2 = [];
 
 // 请求拦截  设置统一header
 axios.interceptors.request.use(config => {
@@ -56,7 +56,7 @@ axios.interceptors.response.use(response => {
         })
   }
 
- function getMessage(device, user){   
+ function getMessage(device, user, msgList){   
       axios.get(`http://localhost:3000/api/msgprofiles/msg/${device._id}`)
         .then(res => {
           let result = res.data.filter(data => {
@@ -65,12 +65,14 @@ axios.interceptors.response.use(response => {
           if (result.length > 0) {
             console.log("消息获取完成");
             console.log(result[0].message);
-            return result[0].message;
-          }  else {
-            return [];
-          }
-      }
-    )
+            //return result[0].message;
+            msgList.push(...result[0].message);
+          }  
+          // else {
+          //   return [];
+          // }
+        }
+        )
   }
 
   function saveMsg(user, device, msgList, msgList2) {
@@ -118,7 +120,7 @@ axios.interceptors.response.use(response => {
 serverSocket.on('message', (msg, rinfo) => {
     //console.log(messageList1);
     console.log('recv %s(%d bytes) from client %s:%d\n', msg.toString(), msg.length, rinfo.address, rinfo.port);
-    const reg = /ID=([0-9]{15})&pwd=.+/;
+    const reg = /ID=([0-9]{14})&pwd=.+/;
 
     if(reg.test(msg.toString()) && !global.isLogin){
       let deviceID = msg.toString().split("&")[0].split("=")[1];
@@ -130,10 +132,14 @@ serverSocket.on('message', (msg, rinfo) => {
           global.isLogin = !isEmpty(device);
           global.device = device;
           global.user = deInfo.user;
-          let messagetest = getMessage(deInfo, deInfo.user);
-          //messageList1.push(...getMessage(deInfo, deInfo.user));
+          //let messagetest = [] ;
+          //messagetest = getMessage(deInfo, deInfo.user);
+          getMessage(deInfo, deInfo.user, messageList1);
+          getMessage(deInfo.user, deInfo, messageList2);
+
+          //messagetest.push(getMessage(deInfo, deInfo.user));
           // messageList2.push(getMessage(deInfo.user, deInfo));
-          console.log(`136 ${messagetest}`);
+          console.log(messageList1);
           console.log(`137 ${messageList2}`);
           Wsocket.init(
             { user: device },
@@ -147,7 +153,7 @@ serverSocket.on('message', (msg, rinfo) => {
           serverSocket.send("login", 0, msg.length, rinfo.port, rinfo.address);   
         })
       )
-      console.log(messageList1);
+      console.log(`152 ${messageList1}`);
       //return;
     } else if(global.isLogin && !reg.test(msg.toString())){
       console.log("正式发送消息！");
