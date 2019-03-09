@@ -12,7 +12,7 @@ router.post(
     (req, res) =>{
         const profileFields = {};
         //profileFields.user = req.user._id;
-        //console.log(req.body)
+        console.log(req.body)
         MsgProfile.findOne({ target: req.body.target, user_id: req.body.user_id })
             .then(profile => {
                 if(!profile) {
@@ -34,7 +34,7 @@ router.post(
 // @access private 
 router.get(
     '/msg/:user_id', 
-    passport.authenticate('jwt', {session: false}), 
+    //passport.authenticate('jwt', {session: false}), 
     (req, res) => {
         MsgProfile.find()
             .then(profiles => {
