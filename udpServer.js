@@ -6,8 +6,8 @@ const jwt_decode = require('jwt-decode');
 
 const port = process.env.PORT || 18777;
 
-let messageList1 = [];
-let messageList2 = [];
+var messageList1 = [];
+var messageList2 = [];
 
 // 请求拦截  设置统一header
 axios.interceptors.request.use(config => {
@@ -56,15 +56,19 @@ axios.interceptors.response.use(response => {
         })
   }
 
-  function getMessage(device, user, msgList){   
+ function getMessage(device, user){   
       axios.get(`http://localhost:3000/api/msgprofiles/msg/${device._id}`)
         .then(res => {
           let result = res.data.filter(data => {
             return data.target._id == user._id;
           });
           if (result.length > 0) {
-            msgList = result[0].message;
-          }    
+            console.log("消息获取完成");
+            console.log(result[0].message);
+            return result[0].message;
+          }  else {
+            return [];
+          }
       }
     )
   }
@@ -126,10 +130,11 @@ serverSocket.on('message', (msg, rinfo) => {
           global.isLogin = !isEmpty(device);
           global.device = device;
           global.user = deInfo.user;
-          getMessage(deInfo, deInfo.user, messageList1);
-          getMessage(deInfo.user, deInfo, messageList2);
-          console.log(messageList1);
-          console.log(messageList2);
+          let messagetest = getMessage(deInfo, deInfo.user);
+          //messageList1.push(...getMessage(deInfo, deInfo.user));
+          // messageList2.push(getMessage(deInfo.user, deInfo));
+          console.log(`136 ${messagetest}`);
+          console.log(`137 ${messageList2}`);
           Wsocket.init(
             { user: device },
             message => {
@@ -142,6 +147,7 @@ serverSocket.on('message', (msg, rinfo) => {
           serverSocket.send("login", 0, msg.length, rinfo.port, rinfo.address);   
         })
       )
+      console.log(messageList1);
       //return;
     } else if(global.isLogin && !reg.test(msg.toString())){
       console.log("正式发送消息！");
@@ -150,6 +156,7 @@ serverSocket.on('message', (msg, rinfo) => {
         target: global.device.user,
         msg: msg.toString(),
       };
+      console.log(`数据库里的消息列表为:  ${messageList1}`);
       messageList1.push({ msg: msg.toString(), source: "self"});
       messageList2.push({ msg: msg.toString(), source: "other"});
       saveMsg(global.user, global.device, messageList1, messageList2);
